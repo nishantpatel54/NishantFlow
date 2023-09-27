@@ -1,36 +1,34 @@
-from dense import Dense
-from activation_funcs import Tanh
-from loss_funcs import mse, mse_prime
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from NeuralNetwork.Dense.dense import Dense
+from Functions.activations import Tanh
+from Functions.losses import mse, mse_prime
+from NeuralNetwork.network import train, predict
 
-X = np.reshape([[0,0],[0,1],[1,0],[1,1]],(4,2,1))
-Y = np.reshape([[0],[1],[1],[0]],(4,1,1))
+X = np.reshape([[0, 0], [0, 1], [1, 0], [1, 1]], (4, 2, 1))
+Y = np.reshape([[0], [1], [1], [0]], (4, 1, 1))
 
 network = [
-    Dense(2,3),
+    Dense(2, 3),
     Tanh(),
-    Dense(3,1),
+    Dense(3, 1),
     Tanh()
 ]
 
-epochs =10000
-alpha = 0.01
-for e in range(epochs):
-    error = 0
-    for x,y in zip(X,Y):
-        output = x
-        for layer in network:
-            output = layer.forward(output)
+# train
+train(network, mse, mse_prime, X, Y, epochs=10000, learning_rate=0.1)
 
-        error += mse(y, output)
+# decision boundary plot
+points = []
+for x in np.linspace(0, 1, 20):
+    for y in np.linspace(0, 1, 20):
+        z = predict(network, [[x], [y]])
+        points.append([x, y, z[0,0]])
 
-        grad = mse_prime(y,output)
+points = np.array(points)
 
-        for layer in reversed(network):
-            grad = layer.backward(grad,alpha)
-        
-    error /= len(X)
-    print('%d/%d epochs, error=%f' % (e+1, epochs, error))
-
-print('enter any key: ')
-temp = input()
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
+ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=points[:, 2], cmap="winter")
+plt.show()
