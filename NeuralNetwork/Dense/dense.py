@@ -3,8 +3,8 @@ from NeuralNetwork.layer import Layer
 
 class Dense(Layer):
     def __init__(self, input_size, output_size):
-        self.weights = np.random.randn(output_size, input_size)
-        self.bias = np.random.randn(output_size, 1)
+        self.weights = np.random.randn(output_size, input_size) * np.sqrt(1./(input_size))
+        self.bias = np.random.randn(output_size, 1) * np.sqrt(1./(input_size))
 
     def forward(self, input):
         self.input = input
